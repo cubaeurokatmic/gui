@@ -20,6 +20,10 @@
 
 /************************************************/
 
+#define CRASH_EMAILADDR "forum at www.openesi.eu"
+#define INFOFILE "/maintainer.info"
+
+#define RINGBUFFER_SIZE 16384
 static char ringbuffer[RINGBUFFER_SIZE];
 static unsigned int ringbuffer_head;
 
