@@ -575,12 +575,7 @@ def loadSingleSkinData(desktop, skin, path_prefix):
 			try:
 				name = get("name")
 				value = get("value")
-				if name.find('Font') != -1:
-					font = value.split(";")
-					if isinstance(font, list) and len(font) == 2:
-						parameters[name] = (str(font[0]), int(font[1]))
-				else:
-					parameters[name] = map(int, value.split(","))
+				parameters[name] = map(int, value.split(","))
 			except Exception, ex:
 				print "[SKIN] bad parameter", ex
 
