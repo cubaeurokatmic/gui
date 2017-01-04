@@ -139,18 +139,6 @@ class SkinSelectorBase:
 
 	def restartGUI(self, answer):
 		if answer is True:
-			if isinstance(self, LcdSkinSelector):
-				config.skin.display_skin.value = self.skinfile
-				config.skin.display_skin.save()
-			else:
-				try:
-					if config.skin.primary_skin.value == "MetrixHD/skin.MySkin.xml":
-						from Plugins.Extensions.MyMetrixLite.MainSettingsView import MainSettingsView
-						MainSettingsView(None).getEHDiconRefresh(restore=True)
-				except:
-					pass
-				config.skin.primary_skin.value = self.skinfile
-				config.skin.primary_skin.save()
 			self.session.open(TryQuitMainloop, 3)
 
 class SkinSelector(Screen, SkinSelectorBase):
