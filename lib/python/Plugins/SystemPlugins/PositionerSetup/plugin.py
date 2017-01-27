@@ -187,7 +187,7 @@ class PositionerSetup(Screen):
 		self.dataAvailable = Event()
 		self.onClose.append(self.__onClose)
 
-		self.createConfig()
+		self.createConfig(fe_data)
 		self.createSetup()
 
 	def __onClose(self):
