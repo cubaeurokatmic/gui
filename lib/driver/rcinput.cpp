@@ -109,7 +109,7 @@ void eRCDeviceInputDev::handleCode(long rccode)
 		}
 	}
 
-#if TRIVIARRC
+#if TIVIARRC
 	if (ev->code == KEY_EPG) {
 		ev->code = KEY_INFO;
 	}
@@ -126,7 +126,7 @@ void eRCDeviceInputDev::handleCode(long rccode)
 		ev->code = KEY_TEXT;
 	}
 	else if (ev->code == KEY_BACK) {
-		ev->code = KEY_LIST;
+		ev->code = KEY_MEDIA;
 	}
 	else if (ev->code == KEY_PLAYPAUSE) {
 		ev->code = KEY_PLAY;
