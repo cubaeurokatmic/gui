@@ -1,5 +1,3 @@
-# plugin from Sif Team
-
 from enigma import eDVBDB, eServiceReference, eServiceCenter
 from Screens.Screen import Screen
 from Screens.MessageBox import MessageBox
@@ -9,6 +7,9 @@ from Components.ConfigList import ConfigListScreen
 from Components.config import getConfigListEntry, config, ConfigSubsection, ConfigYesNo, ConfigSelection, configfile
 from Tools.Directories import resolveFilename, SCOPE_CONFIG
 from Plugins.Plugin import PluginDescriptor
+
+from about import LCNScannerAbout
+
 import os
 import sys
 import re
@@ -17,7 +18,6 @@ import xml.etree.cElementTree
 
 class LCN():
 	service_types_tv = '1:7:1:0:0:0:0:0:0:0:(type == 1) || (type == 17) || (type == 22) || (type == 25) || (type == 134) || (type == 195)'
-	service_types_radio = '1:7:2:0:0:0:0:0:0:0:(type == 2)'
 	
 	def __init__(self, dbfile, rulefile, rulename, bouquetfile):
 		self.dbfile = dbfile
@@ -83,8 +83,8 @@ class LCN():
 	def addMarker(self, position, text):
 		self.markers.append([position, text])
 		
-	def read(self, serviceType):
-		self.readE2Services(serviceType)
+	def read(self):
+		self.readE2Services()
 		
 		try:
 			f = open(self.dbfile)
@@ -118,13 +118,25 @@ class LCN():
 						self.addMarker(int(x.get("position")), x.text)
 
 		self.markers.sort(key=lambda z: int(z[0]))
+
+	def getBouquetName(self):
+		try:
+			f = open(self.bouquetfile, "r")
+		except Exception, e:
+			print e
+			return "Terrestrial"
+			
+		line = f.readline().strip()
+		f.close()
 		
-	def readE2Services(self, serviceType):
+		if line[:5] != "#NAME":
+			return "Terrestrial"
+			
+		return line[6:]
+	
+	def readE2Services(self):
 		self.e2services = []
-		if serviceType == "TV":
-			refstr = '%s ORDER BY name'%(self.service_types_tv)
-		elif serviceType == "RADIO":
-			refstr = '%s ORDER BY name'%(self.service_types_radio)
+		refstr = '%s ORDER BY name'%(self.service_types_tv)
 		ref = eServiceReference(refstr)
 		serviceHandler = eServiceCenter.getInstance()
 		servicelist = serviceHandler.list(ref)
@@ -137,45 +149,19 @@ class LCN():
 				unsigned_orbpos = service.getUnsignedData(4) >> 16
 				if unsigned_orbpos == 0xEEEE: #Terrestrial
 					self.e2services.append(service.toString())
-					
-	def writeTVBouquet(self):
+				
+		#print self.e2services
+		
+	def writeBouquet(self):
+		bouquetname = self.getBouquetName()
 		try:
-			f = open('/etc/enigma2/userbouquet.terrestrial_lcn.tv', "w")
+			f = open(self.bouquetfile, "w")
 		except Exception, e:
 			print e
 			return
-
-		self.newlist = []
-		count = 0
-		#for x in self.lcnlist:
-			#print " LISTA LCN:", x
 			
+		f.write("#NAME " + bouquetname + "\n")
 		for x in self.lcnlist:
-			count += 1
-			while x[0] != count:
-				self.newlist.append([count, 11111111, 11111, 111, 111, 111111])
-				count += 1
-			if x[0] == count:
-				self.newlist.append(x)
-
-		#for x in self.e2services:
-			#print " self.e2services:", x
-
-
-		#for x in self.newlist:
-			#print " NEW LIST LCN :", x
-			
-		#print " New LIST LEN: " , len(self.newlist)
-			
-		f.write("#NAME Terrestrial TV LCN\n")
-		f.write("#SERVICE 1:64:0:0:0:0:0:0:0:0::Terrestrial TV LCN\n")
-		f.write("##DESCRIPTION Terrestrial TV LCN\n")
-		for x in self.newlist:
-			if int(x[1]) == 11111111:
-				#print x[0], " Detected 111111111111 service"
-				f.write("#SERVICE 1:832:d:0:0:0:0:0:0:0:\n")
-				continue
-				
 			if len(self.markers) > 0:
 				if x[0] > self.markers[0][0]:
 					f.write("#SERVICE 1:64:0:0:0:0:0:0:0:0:\n")
@@ -183,117 +169,14 @@ class LCN():
 					self.markers.remove(self.markers[0])
 			refstr = "1:0:1:%x:%x:%x:%x:0:0:0:" % (x[4],x[3],x[2],x[1]) # temporary ref
 			refsplit = eServiceReference(refstr).toString().split(":")
-			added = False
 			for tref in self.e2services:
 				tmp = tref.split(":")
 				if tmp[3] == refsplit[3] and tmp[4] == refsplit[4] and tmp[5] == refsplit[5] and tmp[6] == refsplit[6]:
 					f.write("#SERVICE " + tref + "\n")
-					added = True
 					break
-
-			if not added: # no service found? something wrong? a log should be a good idea. Anyway we add an empty line so we keep the numeration
-				f.write("#SERVICE 1:832:d:0:0:0:0:0:0:0:\n")
-
-		f.close()
-		self.addInTVBouquets()
-
-	def addInTVBouquets(self):
-		f = open('/etc/enigma2/bouquets.tv', 'r')
-		ret = f.read().split("\n")
+			
 		f.close()
 		
-		i = 0
-		while i < len(ret):
-			if ret[i].find("userbouquet.terrestrial_lcn.tv") >= 0:
-				return
-			i += 1
-			
-		f = open('/etc/enigma2/bouquets.tv', 'w')
-		f.write(ret[0]+"\n")
-		f.write('#SERVICE 1:7:1:0:0:0:0:0:0:0:FROM BOUQUET "userbouquet.terrestrial_lcn.tv" ORDER BY bouquet\n')
-		i = 1
-		while i < len(ret):
-			f.write(ret[i]+"\n")
-			i += 1
-
-	def writeRadioBouquet(self):
-		try:
-			f = open('/etc/enigma2/userbouquet.terrestrial_lcn.radio', "w")
-		except Exception, e:
-			print e
-			return
-
-		self.newlist = []
-		count = 0
-		#for x in self.lcnlist:
-			#print " LISTA LCN:", x
-			
-		for x in self.lcnlist:
-			count += 1
-			while x[0] != count:
-				self.newlist.append([count, 11111111, 11111, 111, 111, 111111])
-				count += 1
-			if x[0] == count:
-				self.newlist.append(x)
-
-		#for x in self.e2services:
-			#print " self.e2services:", x
-
-
-		#for x in self.newlist:
-			#print " NEW LIST LCN :", x
-			
-		#print " New LIST LEN: " , len(self.newlist)
-			
-		f.write("#NAME Terrestrial Radio LCN\n")
-		f.write("#SERVICE 1:64:0:0:0:0:0:0:0:0::Terrestrial RADIO LCN\n")
-		f.write("##DESCRIPTION Terrestrial RADIO LCN\n")
-		for x in self.newlist:
-			if int(x[1]) == 11111111:
-				#print x[0], " Detected 111111111111 service"
-				f.write("#SERVICE 1:832:d:0:0:0:0:0:0:0:\n")
-				continue
-				
-			if len(self.markers) > 0:
-				if x[0] > self.markers[0][0]:
-					f.write("#SERVICE 1:64:0:0:0:0:0:0:0:0:\n")
-					f.write("#DESCRIPTION ------- " + self.markers[0][1] + " -------\n")
-					self.markers.remove(self.markers[0])
-			refstr = "1:0:2:%x:%x:%x:%x:0:0:0:" % (x[4],x[3],x[2],x[1]) # temporary ref
-			refsplit = eServiceReference(refstr).toString().split(":")
-			added = False
-			for tref in self.e2services:
-				tmp = tref.split(":")
-				if tmp[3] == refsplit[3] and tmp[4] == refsplit[4] and tmp[5] == refsplit[5] and tmp[6] == refsplit[6]:
-					f.write("#SERVICE " + tref + "\n")
-					added = True
-					break
-
-			if not added: # no service found? something wrong? a log should be a good idea. Anyway we add an empty line so we keep the numeration
-				f.write("#SERVICE 1:832:d:0:0:0:0:0:0:0:\n")
-
-		f.close()
-		self.addInRadioBouquets()
-		
-	def addInRadioBouquets(self):
-		f = open('/etc/enigma2/bouquets.radio', 'r')
-		ret = f.read().split("\n")
-		f.close()
-		
-		i = 0
-		while i < len(ret):
-			if ret[i].find("userbouquet.terrestrial_lcn.radio") >= 0:
-				return
-			i += 1
-			
-		f = open('/etc/enigma2/bouquets.radio', 'w')
-		f.write(ret[0]+"\n")
-		f.write('#SERVICE 1:7:2:0:0:0:0:0:0:0:FROM BOUQUET "userbouquet.terrestrial_lcn.radio" ORDER BY bouquet\n')
-		i = 1
-		while i < len(ret):
-			f.write(ret[i]+"\n")
-			i += 1
-			
 	def reloadBouquets(self):
 		eDVBDB.getInstance().reloadBouquets()
 
@@ -310,8 +193,8 @@ class LCNBuildHelper():
 				self.rulelist.append((x.get("name"), x.get("name")))
 			
 		config.lcn = ConfigSubsection()
-		config.lcn.enabled = ConfigYesNo(True)
-		config.lcn.bouquet = ConfigSelection(default = "userbouquet.LastScanned.tv", choices = self.bouquetlist)
+		config.lcn.enabled = ConfigYesNo(False)
+		config.lcn.bouquet = ConfigSelection(self.bouquetlist)
 		config.lcn.rules = ConfigSelection(self.rulelist)
 
 	def readBouquetsTvList(self, pwd):
@@ -381,32 +264,28 @@ class LCNBuildHelper():
 				break
 
 		lcn = LCN(resolveFilename(SCOPE_CONFIG, "lcndb"), os.path.dirname(sys.modules[__name__].__file__) + "/rules.xml", rule, resolveFilename(SCOPE_CONFIG, bouquet))
-		lcn.read("TV")
+		lcn.read()
 		if len(lcn.lcnlist) > 0:
-			lcn.writeTVBouquet()
+			lcn.writeBouquet()
+			lcn.reloadBouquets()
 		else:
 			if not suppressmessages:
 				self.session.open(MessageBox, _("No entry in lcn db. Please do a service scan."), MessageBox.TYPE_INFO)
-				
-		lcn.read("RADIO")
-		if len(lcn.lcnlist) > 0:
-			lcn.writeRadioBouquet()
-		else:
-			if not suppressmessages:
-				self.session.open(MessageBox, _("No entry in lcn db. Please do a service scan."), MessageBox.TYPE_INFO)
-				
-		lcn.reloadBouquets()
 
 class LCNScannerPlugin(Screen, ConfigListScreen, LCNBuildHelper):
 	skin = """
-		<screen position="center,center" size="560,400" title="LCN Scanner">
+		<screen position="center,center" size="560,400" title="SIFTeam LCN">
 			<widget name="config" position="5,5" size="550,350" scrollbarMode="showOnDemand" zPosition="1"/>
 
 			<widget name="key_red" position="0,360" size="140,40" valign="center" halign="center" zPosition="5" transparent="1" foregroundColor="white" font="Regular;18"/>
 			<widget name="key_green" position="140,360" size="140,40" valign="center" halign="center" zPosition="5" transparent="1" foregroundColor="white" font="Regular;18"/>
+			<widget name="key_yellow" position="280,360" size="140,40" valign="center" halign="center" zPosition="5" transparent="1" foregroundColor="white" font="Regular;18"/>
+			<widget name="key_blue" position="420,360" size="140,40" valign="center" halign="center" zPosition="5" transparent="1" foregroundColor="white" font="Regular;18"/>
 			
 			<ePixmap name="red" pixmap="skin_default/buttons/red.png" position="0,360" size="140,40" zPosition="4" transparent="1" alphatest="on"/>
 			<ePixmap name="green" pixmap="skin_default/buttons/green.png" position="140,360" size="140,40" zPosition="4" transparent="1" alphatest="on"/>
+			<ePixmap name="yellow" pixmap="skin_default/buttons/yellow.png" position="280,360" size="140,40" zPosition="4" transparent="1" alphatest="on"/>
+			<ePixmap name="blue" pixmap="skin_default/buttons/blue.png" position="420,360" size="140,40" zPosition="4" transparent="1" alphatest="on"/>
 		</screen>"""
 	
 	def __init__(self, session):
@@ -420,12 +299,15 @@ class LCNScannerPlugin(Screen, ConfigListScreen, LCNBuildHelper):
 		]
 
 		ConfigListScreen.__init__(self, self.list, session = session)
-		self["key_red"] = Button(_("Rebuild"))
-		self["key_green"] = Button(_("Exit"))
+		self["key_red"] = Button(_("Ok"))
+		self["key_green"] = Button(_("About"))
+		self["key_yellow"] = Button("")
+		self["key_blue"] = Button(_("Back"))
 		self["actions"] = ActionMap(["OkCancelActions", "ColorActions"],
 				{
 					"red": self.ok,
-					"green": self.keyCancel,
+					"green": self.about,
+					"blue": self.keyCancel,
 					"cancel": self.keyCancel,
 				}, -2)
 	
@@ -443,15 +325,17 @@ class LCNScannerPlugin(Screen, ConfigListScreen, LCNBuildHelper):
 			self.keySave()
 			configfile.save()
 			
+	def about(self):
+		self.session.open(LCNScannerAbout)
+
 def LCNScannerMain(session, **kwargs):
 	session.open(LCNScannerPlugin)
 	
 def LCNScannerSetup(menuid, **kwargs):
 	if menuid == "scan":
-		return [("LCN Scanner", LCNScannerMain, "lcnscanner", None)]
+		return [("LCN", LCNScannerMain, "lcnscanner", None)]
 	else:
 		return []
 
 def Plugins(**kwargs):
-	return PluginDescriptor(name="LCN", description=_("LCN plugin for DVB-T/T2 services"), where = PluginDescriptor.WHERE_MENU, fnc=LCNScannerSetup)
-	#return PluginDescriptor(name="LCN", description=_("LCN plugin for DVB-T/T2 services"), where = PluginDescriptor.WHERE_PLUGINMENU, fnc=LCNScannerMain)
+	return PluginDescriptor(name="LCN", description=_("LCN plugin for DVB-T services"), where = PluginDescriptor.WHERE_MENU, fnc=LCNScannerSetup)
