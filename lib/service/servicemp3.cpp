@@ -505,7 +505,7 @@ eServiceMP3::eServiceMP3(eServiceReference ref):
 	m_last_seek_count = -10;
 	m_seeking_or_paused = false;
 #endif
-	m_useragent = "Enigma2 HbbTV/1.1.1 (+PVR+RTSP+DL;openATV;;;)";
+	m_useragent = "Enigma2 HbbTV/1.1.1 (+PVR+RTSP+DL;openESI;;;)";
 	m_extra_headers = "";
 	m_download_buffer_path = "";
 	m_prev_decoder_time = -1;

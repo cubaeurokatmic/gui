@@ -17,8 +17,8 @@ class VtiImageVersion(VariableText, Renderer):
 
     def changed(self, what):
         if what[0] != self.CHANGED_CLEAR:
-            self.text = self.ATVImageVersion()
+            self.text = self.ESIImageVersion()
 
-    def ATVImageVersion(self):
-        atvversion = getImageVersion()
-        return 'openATV Image Release v. %s' % atvversion
+    def ESIImageVersion(self):
+        esiversion = getImageVersion()
+        return 'openESI Image Release v. %s' % esiversion
