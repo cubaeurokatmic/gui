@@ -306,7 +306,7 @@ class About(Screen):
 			self["FullAbout"] = ScrollLabel(my_txt)
 		else:
 			self["lab1"] = StaticText(_("openESI"))
-			self["lab2"] = StaticText(_("By openESI Team"))
+			self["lab2"] = StaticText(_("By openESI Image"))
 			self["lab3"] = StaticText(_("Support at") + " www.openesi.eu")
 			model = None
 			AboutText = getAboutText()[0]

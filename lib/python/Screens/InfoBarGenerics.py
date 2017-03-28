@@ -3022,12 +3022,12 @@ class InfoBarExtensions:
 	def extraddonsStart(self):
 		try:
 			if not self.session.pipshown:
-				from Plugins.Extensions.Esipanel.Extraddons import ExtrAddons
+				from Plugins.Extensions.Esipanel.ExtrAddons import ExtrAddons
 				self.session.open(ExtrAddons)
 			else:
 				self.showExtensionSelection()
 		except:
-			print "[INFOBARGENERICS] ExtrAddons: error pipshow, starting Quick Menu"
+			print "[INFOBARGENERICS] ExtrAddons: error pipshow, starting Extr Addons"
 			from Plugins.Extensions.Esipanel.ExtrAddons import ExtrAddons
 			self.session.open(ExtrAddons)
 
