@@ -352,7 +352,6 @@ class MovieContextMenu(Screen, ProtectedScreen):
 		self["HelpWindow"].hide()
 		self["VKeyIcon"] = Boolean(False)
 		self['footnote'] = Label("")
-		self['description'] = Label("")
 		self["status"] = StaticText()
 
 		self.csel = csel

@@ -10,17 +10,16 @@ from Components.Label import Label
 from Components.Sources.Boolean import Boolean
 
 from enigma import eEnv
-from gettext import dgettext
 from boxbranding import getMachineBrand, getMachineName
 
 import xml.etree.cElementTree
 
 def setupdom(plugin=None):
 	# read the setupmenu
-	if plugin:
+	try:
 		# first we search in the current path
 		setupfile = file(resolveFilename(SCOPE_CURRENT_PLUGIN, plugin + '/setup.xml'), 'r')
-	else:
+	except:
 		# if not found in the current path, we use the global datadir-path
 		setupfile = file(eEnv.resolve('${datadir}/enigma2/setup.xml'), 'r')
 	setupfiledom = xml.etree.cElementTree.parse(setupfile)
@@ -93,7 +92,7 @@ class Setup(ConfigListScreen, Screen):
 			self.setup_title = x.get("title", "").encode("UTF-8")
 			self.seperation = int(x.get('separation', '0'))
 
-	def __init__(self, session, setup, plugin=None, PluginLanguageDomain=None):
+	def __init__(self, session, setup, plugin=None):
 		Screen.__init__(self, session)
 		# for the skin: first try a setup_<setupID>, then Setup
 		self.skinName = ["setup_" + setup, "Setup" ]
@@ -107,7 +106,6 @@ class Setup(ConfigListScreen, Screen):
 		self.item = None
 		self.setup = setup
 		self.plugin = plugin
-		self.PluginLanguageDomain = PluginLanguageDomain
 		list = []
 		self.onNotifiers = [ ]
 		self.refill(list)
@@ -226,25 +224,12 @@ class Setup(ConfigListScreen, Screen):
 				continue
 			if x.tag == 'item':
 				item_level = int(x.get("level", 0))
-				item_tunerlevel = int(x.get("tunerlevel", 0))
-				item_rectunerlevel = int(x.get("rectunerlevel", 0))
-				item_tuxtxtlevel = int(x.get("tt_level", 0))
 
 				if not self.onNotifiers:
 					self.onNotifiers.append(self.levelChanged)
 					self.onClose.append(self.removeNotifier)
 
 				if item_level > config.usage.setup_level.index:
-					continue
-				if (item_tuxtxtlevel == 1) and (config.usage.tuxtxt_font_and_res.value != "expert_mode"):
-					continue
-				if item_tunerlevel == 1 and not config.usage.frontend_priority.value in ("expert_mode", "experimental_mode"):
-					continue
-				if item_tunerlevel == 2 and not config.usage.frontend_priority.value == "experimental_mode":
-					continue
-				if item_rectunerlevel == 1 and not config.usage.recording_frontend_priority.value in ("expert_mode", "experimental_mode"):
-					continue
-				if item_rectunerlevel == 2 and not config.usage.recording_frontend_priority.value == "experimental_mode":
 					continue
 
 				requires = x.get("requires")
@@ -258,14 +243,9 @@ class Setup(ConfigListScreen, Screen):
 				if requires and not SystemInfo.get(requires, False):
 					continue
 
-				if self.PluginLanguageDomain:
-					item_text = dgettext(self.PluginLanguageDomain, x.get("text", "??").encode("UTF-8"))
-					item_description = dgettext(self.PluginLanguageDomain, x.get("description", " ").encode("UTF-8"))
-				else:
-					item_text = _(x.get("text", "??").encode("UTF-8"))
-					item_description = _(x.get("description", " ").encode("UTF-8"))
-
+				item_text = _(x.get("text", "??").encode("UTF-8"))
 				item_text = item_text.replace("%s %s","%s %s" % (getMachineBrand(), getMachineName()))
+				item_description = _(x.get("description", " ").encode("UTF-8"))
 				item_description = item_description.replace("%s %s","%s %s" % (getMachineBrand(), getMachineName()))
 				b = eval(x.text or "")
 				if b == "":
