@@ -4099,7 +4099,7 @@ void eEPGCache::channel_data::startPrivateReader()
 	}
 	seenPrivateSections.clear();
 	if (!m_PrivateConn)
-		m_PrivateReader->connectRead(sigc::mem_fun(*this, &eEPGCache::channel_data::readPrivateData), m_PrivateConn);
+		m_PrivateReader->connectRead(slot(*this, &eEPGCache::channel_data::readPrivateData), m_PrivateConn);
 	m_PrivateReader->start(mask);
 }
 
