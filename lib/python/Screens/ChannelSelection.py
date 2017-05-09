@@ -49,7 +49,6 @@ from Tools.BoundFunction import boundFunction
 from Tools import Notifications
 from Plugins.Plugin import PluginDescriptor
 from Components.PluginComponent import plugins
-from RecordTimer import TIMERTYPE
 
 from time import localtime, time
 try:
@@ -826,10 +825,10 @@ class ChannelSelectionEPG(InfoBarButtonSetup):
 		self["ChannelSelectBaseActions"].setEnabled(True)
 
 	def doRecordCurrentTimer(self):
-		self.doInstantTimer(TIMERTYPE.JUSTPLAY, parseCurentEvent)
+		self.doInstantTimer(0, parseCurentEvent)
 
 	def doRecordNextTimer(self):
-		self.doInstantTimer(TIMERTYPE.JUSTPLAY, parseNextEvent, True)
+		self.doInstantTimer(0, parseNextEvent, True)
 
 	def doZapTimer(self):
 		self.doInstantTimer(1, parseNextEvent)

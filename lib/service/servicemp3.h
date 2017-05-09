@@ -26,7 +26,6 @@ public:
 	RESULT list(const eServiceReference &, ePtr<iListableService> &ptr);
 	RESULT info(const eServiceReference &, ePtr<iStaticServiceInformation> &ptr);
 	RESULT offlineOperations(const eServiceReference &, ePtr<iServiceOfflineOperations> &ptr);
-	gint m_eServicemp3_counter;
 private:
 	ePtr<eStaticServiceMP3Info> m_service_info;
 };
@@ -123,16 +122,17 @@ typedef enum { ctNone, ctMPEGTS, ctMPEGPS, ctMKV, ctAVI, ctMP4, ctVCD, ctCDA, ct
 
 class eServiceMP3: public iPlayableService, public iPauseableService,
 	public iServiceInformation, public iSeekableService, public iAudioTrackSelection, public iAudioChannelSelection,
-	public iSubtitleOutput, public iStreamedService, public iAudioDelay, public sigc::trackable, public iCueSheet
+	public iSubtitleOutput, public iStreamedService, public iAudioDelay, public Object, public iCueSheet
 {
 	DECLARE_REF(eServiceMP3);
 public:
 	virtual ~eServiceMP3();
 
 		// iPlayableService
-	RESULT connectEvent(const sigc::slot2<void,iPlayableService*,int> &event, ePtr<eConnection> &connection);
+	RESULT connectEvent(const Slot2<void,iPlayableService*,int> &event, ePtr<eConnection> &connection);
 	RESULT start();
 	RESULT stop();
+	RESULT setTarget(int target);
 
 	RESULT pause(ePtr<iPauseableService> &ptr);
 	RESULT setSlowMotion(int ratio);
@@ -146,7 +146,6 @@ public:
 	RESULT cueSheet(ePtr<iCueSheet> &ptr);
 
 		// not implemented (yet)
-	RESULT setTarget(int target, bool noaudio = false) { return -1; }
 	RESULT frontendInfo(ePtr<iFrontendInformation> &ptr) { ptr = 0; return -1; }
 	RESULT subServices(ePtr<iSubserviceList> &ptr) { ptr = 0; return -1; }
 	RESULT timeshift(ePtr<iTimeshiftService> &ptr) { ptr = 0; return -1; }
@@ -239,12 +238,10 @@ public:
 	{
 		audiotype_t audiotype;
 		containertype_t containertype;
-		gboolean is_audio;
-		gboolean is_video;
-		gboolean is_streaming;
-		gboolean is_hls;
+		bool is_video;
+		bool is_streaming;
 		sourceStream()
-			:audiotype(atUnknown), containertype(ctNone), is_audio(FALSE), is_video(FALSE), is_streaming(FALSE), is_hls(FALSE)
+			:audiotype(atUnknown), containertype(ctNone), is_video(FALSE), is_streaming(FALSE)
 		{
 		}
 	};
@@ -309,33 +306,25 @@ private:
 	bool m_subtitles_paused;
 	bool m_use_prefillbuffer;
 	bool m_paused;
-	bool m_first_paused;
 	/* cuesheet load check */
 	bool m_cuesheet_loaded;
-	bool m_audiosink_not_running;
 	/* servicemMP3 chapter TOC support CVR */
 #if GST_VERSION_MAJOR >= 1
 	bool m_use_chapter_entries;
 	/* last used seek position gst-1 only */
 	gint64 m_last_seek_pos;
-	pts_t m_media_lenght;
-	ePtr<eTimer> m_play_position_timer;
-	void playPositionTiming();
-	gint m_last_seek_count;
-	bool m_seeking_or_paused;
-	bool m_to_paused;
 #endif
 	bufferInfo m_bufferInfo;
 	errorInfo m_errorInfo;
 	std::string m_download_buffer_path;
 	eServiceMP3(eServiceReference ref);
-	sigc::signal2<void,iPlayableService*,int> m_event;
+	Signal2<void,iPlayableService*,int> m_event;
 	enum
 	{
 		stIdle, stRunning, stStopped,
 	};
 	int m_state;
-	GstElement *m_gst_playbin;
+	GstElement *m_gst_playbin, *audioSink, *videoSink;
 	GstTagList *m_stream_tags;
 
 	eFixedMessagePump<ePtr<GstMessageContainer> > m_pump;
@@ -383,7 +372,7 @@ private:
 	void pullSubtitle(GstBuffer *buffer);
 	void sourceTimeout();
 	sourceStream m_sourceinfo;
-	gulong m_subs_to_pull_handler_id, m_notify_source_handler_id, m_notify_element_added_handler_id;
+	gulong m_subs_to_pull_handler_id;
 
 	RESULT seekToImpl(pts_t to);
 

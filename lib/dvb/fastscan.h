@@ -196,7 +196,7 @@ public:
 		tableProgress(seen.size(), max);
 		return eTable<Section>::createTable(nr, data, max);
 	}
-	sigc::signal2<void, int, int> tableProgress;
+	Signal2<void, int, int> tableProgress;
 };
 
 template <class Section>
@@ -219,7 +219,7 @@ public:
 
 #endif /* no SWIG */
 
-class eFastScan: public sigc::trackable, public iObject
+class eFastScan: public Object, public iObject
 {
 	DECLARE_REF(eFastScan);
 
@@ -229,7 +229,6 @@ class eFastScan: public sigc::trackable, public iObject
 	eDVBFrontendParametersSatellite transponderParameters;
 	bool originalNumbering;
 	bool useFixedServiceInfo;
-	bool createRadioBouquet;
 	int versionNumber;
 	std::string providerName, bouquetFilename;
 	int m_pid;
@@ -246,7 +245,7 @@ class eFastScan: public sigc::trackable, public iObject
 #endif /* no SWIG */
 
 public:
-	eFastScan(int pid, const char *providername, eDVBFrontendParametersSatellite transponderparameters, bool originalnumbering = false, bool fixedserviceinfo = false, bool createRadioBouquet = false);
+	eFastScan(int pid, const char *providername, eDVBFrontendParametersSatellite transponderparameters, bool originalnumbering = false, bool fixedserviceinfo = false);
 	~eFastScan();
 
 	void start(int frontendid = 0);

@@ -437,7 +437,7 @@ eServiceDVD::~eServiceDVD()
 	disableSubtitles();
 }
 
-RESULT eServiceDVD::connectEvent(const sigc::slot2<void,iPlayableService*,int> &event, ePtr<eConnection> &connection)
+RESULT eServiceDVD::connectEvent(const Slot2<void,iPlayableService*,int> &event, ePtr<eConnection> &connection)
 {
 	connection = new eConnection((iPlayableService*)this, m_event.connect(event));
 	return 0;
@@ -464,6 +464,12 @@ RESULT eServiceDVD::stop()
 	ddvd_send_key(m_ddvdconfig, DDVD_KEY_EXIT);
 
 	return 0;
+}
+
+RESULT eServiceDVD::setTarget(int /*target*/)
+{
+	eDebug("[eServiceDVD] setTarget");
+	return -1;
 }
 
 RESULT eServiceDVD::pause(ePtr<iPauseableService> &ptr)

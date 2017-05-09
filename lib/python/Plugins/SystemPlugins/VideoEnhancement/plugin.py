@@ -18,14 +18,12 @@ class VideoEnhancementSetup(Screen, ConfigListScreen):
 		Screen.__init__(self, session)
 		self.session = session
 		self.onChangedEntry = [ ]
-		self.skinName = ["VideoEnhancementSetup"]
 		self.setup_title = _("Video enhancement setup")
 		self["HelpWindow"] = Pixmap()
 		self["HelpWindow"].hide()
 		self["VKeyIcon"] = Boolean(False)
 		self['footnote'] = Label()
 		self["description"] = Label(_(""))
-		self["introduction"] = StaticText()
 
 		self.list = [ ]
 		self.xtdlist = [ ]
@@ -329,12 +327,12 @@ class VideoEnhancementPreview(Screen, ConfigListScreen):
 
 	def createSetup(self):
 		self.list = [ ]
-		if self.maxValue == 255:
+		if self.maxValue == 256:
 			self.configStepsEntry = getConfigListEntry(_("Change step size"), config.pep.configsteps)
 
 		if self.configEntry is not None:
 			self.list = self.configEntry
-		if self.maxValue == 255:
+		if self.maxValue == 256:
 			self.list.append(self.configStepsEntry)
 
 		self["config"].list = self.list
@@ -348,7 +346,7 @@ class VideoEnhancementPreview(Screen, ConfigListScreen):
 		self["introduction"].setText(_("Current value: ") + self.getCurrentValue())
 		try:
 			max_avail=self["config"].getCurrent()[1].max
-			if max_avail == 255:
+			if max_avail == 256:
 				self.isStepSlider = True
 			else:
 				self.isStepSlider = False

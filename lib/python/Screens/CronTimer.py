@@ -283,8 +283,6 @@ class CronTimersConfig(Screen, ConfigListScreen):
 		self['actions'] = ActionMap(['WizardActions', 'ColorActions', 'VirtualKeyboardActions', "MenuActions"], {'red': self.close,'green': self.checkentry, 'back': self.close, 'showVirtualKeyboard': self.KeyText, "menu": self.closeRecursive})
 		self["HelpWindow"] = Pixmap()
 		self["HelpWindow"].hide()
-		self['footnote'] = Label()
-		self['description'] = Label()
 		self.createSetup()
 
 	def createSetup(self):
