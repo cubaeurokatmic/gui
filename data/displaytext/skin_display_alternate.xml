@@ -192,7 +192,6 @@
 		</widget>
 	</screen>
 
-<!-- ESI -->
 <!-- Timer-Log -->
 	<screen name="TimerEntry_summary" position="0,0" size="132,64">
 		<widget source="parent.summary_description" render="Label" position="fill" size="120,20" font="Regular;18" />       

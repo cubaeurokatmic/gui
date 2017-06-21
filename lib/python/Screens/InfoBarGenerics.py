@@ -533,6 +533,7 @@ class InfoBarShowHide(InfoBarScreenSaver):
 	STATE_HIDING = 1
 	STATE_SHOWING = 2
 	STATE_SHOWN = 3
+	skipToggleShow = False
 
 	def __init__(self):
 		self["ShowHideActions"] = ActionMap( ["InfobarShowHideActions"] ,
@@ -711,6 +712,7 @@ class InfoBarShowHide(InfoBarScreenSaver):
 			#idx = config.usage.infobar_timeout.index
 			#if idx:
 			#	self.hideTimer.start(idx*1000, True)
+		self.skipToggleShow = False
 
 	def doShow(self):
 		self.show()
@@ -723,6 +725,7 @@ class InfoBarShowHide(InfoBarScreenSaver):
 		self.hideTimer.stop()
 		self.DimmingTimer.start(300, True)
 		self.dimmed = config.usage.show_infobar_dimming_speed.value
+		self.skipToggleShow = False
 
 	def doHide(self):
 		if self.__state != self.STATE_HIDDEN:
@@ -759,6 +762,9 @@ class InfoBarShowHide(InfoBarScreenSaver):
 #					pass
 
 	def toggleShow(self):
+		if self.skipToggleShow:
+			self.skipToggleShow = False
+			return
 		if not hasattr(self, "LongButtonPressed"):
 			self.LongButtonPressed = False
 		if not self.LongButtonPressed:
@@ -816,6 +822,7 @@ class InfoBarShowHide(InfoBarScreenSaver):
 		if self.execing:
 			self.show()
 			self.hideTimer.stop()
+			self.skipToggleShow = False
 
 	def unlockShow(self):
 		if config.usage.show_infobar_do_dimming.value and self.lastResetAlpha is False:
@@ -2519,6 +2526,9 @@ class InfoBarSeek:
 			return
 		self.doPause(False)
 		self.setSeekState(self.SEEK_STATE_PLAY)
+		if config.usage.show_infobar_on_skip.value and not config.usage.show_infobar_locked_on_pause.value:
+			self.showAfterSeek()
+		self.skipToggleShow = True # skip 'break' action (toggleShow) after 'make' action (unPauseService)
 
 	def doPause(self, pause):
 		if pause:
@@ -2565,6 +2575,7 @@ class InfoBarSeek:
 						return
 					if position + pts >= length:
 						InfoBarTimeshift.evEOF(self, position + pts - length)
+						self.showAfterSeek()
 						return
 					elif position + pts < 0:
 						InfoBarTimeshift.evSOF(self, position + pts)
@@ -2585,7 +2596,7 @@ class InfoBarSeek:
 			else:
 				self.setSeekState(self.SEEK_STATE_PLAY)
 		seekable.seekRelative(pts<0 and -1 or 1, abs(pts))
-		if abs(pts) > 100 and config.usage.show_infobar_on_skip.value:
+		if (abs(pts) > 100 or not config.usage.show_infobar_locked_on_pause.value) and config.usage.show_infobar_on_skip.value:
 			self.showAfterSeek()
 
 	def DoSeekAction(self):
@@ -2764,6 +2775,11 @@ class InfoBarSeek:
 		if self.seekstate == self.SEEK_STATE_PLAY or self.seekstate == self.SEEK_STATE_EOF:
 			self.lockedBecauseOfSkipping = False
 			self.unlockShow()
+		elif self.seekstate == self.SEEK_STATE_PAUSE and not config.usage.show_infobar_locked_on_pause.value:
+			if config.usage.show_infobar_on_skip.value:
+				self.lockedBecauseOfSkipping = False
+				self.unlockShow()
+				self.showAfterSeek()
 		else:
 			wantlock = self.seekstate != self.SEEK_STATE_PLAY
 			if config.usage.show_infobar_on_skip.value:
@@ -2975,7 +2991,7 @@ class InfoBarExtensions:
 			self["InstantExtensionsActions"] = HelpableActionMap(self, "InfobarExtensions",
 				{
 					"extensions": (self.bluekey_ex, _("Show extensions...")),
-					"extraddons": (self.bluekey_qm, _("Show extraddons...")),
+					"esimenu": (self.bluekey_qm, _("Show esimenu...")),
 					"showPluginBrowser": (self.showPluginBrowser, _("Show the plugin browser..")),
 					"showEventInfo": (self.SelectopenEventView, _("Show the infomation on current event.")),
 					"openTimerList": (self.showTimerList, _("Show the list of timers.")),
@@ -2989,7 +3005,7 @@ class InfoBarExtensions:
 			self["InstantExtensionsActions"] = HelpableActionMap(self, "InfobarExtensions",
 				{
 					"extensions": (self.bluekey_ex, _("view extensions...")),
-					"extraddons": (self.bluekey_qm, _("Show extraddons...")),
+					"esimenu": (self.bluekey_qm, _("Show esimenu...")),
 					"showPluginBrowser": (self.showPluginBrowser, _("Show the plugin browser..")),
 					"showDreamPlex": (self.showDreamPlex, _("Show the DreamPlex player...")),
 					"showEventInfo": (self.SelectopenEventView, _("Show the infomation on current event.")),
@@ -3011,25 +3027,25 @@ class InfoBarExtensions:
 		if config.workaround.blueswitch.value == "1":
 			self.showExtensionSelection()
 		else:
-			self.extraddonsStart()
+			self.esimenuStart()
 
 	def bluekey_ex(self):
 		if config.workaround.blueswitch.value == "1":
-			self.extraddonsStart()
+			self.esimenuStart()
 		else:
 			self.showExtensionSelection()
 
-	def extraddonsStart(self):
+	def esimenuStart(self):
 		try:
 			if not self.session.pipshown:
-				from Plugins.Extensions.Esipanel.ExtrAddons import ExtrAddons
-				self.session.open(ExtrAddons)
+				from Plugins.Extensions.Esipanel.EsiMenu import EsiMenu
+				self.session.open(EsiMenu)
 			else:
 				self.showExtensionSelection()
 		except:
-			print "[INFOBARGENERICS] ExtrAddons: error pipshow, starting Extr Addons"
-			from Plugins.Extensions.Esipanel.ExtrAddons import ExtrAddons
-			self.session.open(ExtrAddons)
+			print "[INFOBARGENERICS] EsiMenu: error pipshow, starting Esi Menu"
+			from Plugins.Extensions.Esipanel.EsiMenu import EsiMenu
+			self.session.open(EsiMenu)
 
 	def SelectopenEventView(self):
 		try:
@@ -3559,6 +3575,8 @@ class InfoBarESIpanel:
 			isHBBTV = True
 		if os.path.isfile("/usr/lib/enigma2/python/Plugins/Extensions/WebkitHbbTV/plugin.pyo"):
 			isHBBTV = True
+		if os.path.isfile("/usr/lib/enigma2/python/Plugins/Extensions/QtHbbtv/plugin.pyo"):
+			isHBBTV = True
 
 		if isWEBBROWSER or isHBBTV:
 			service = self.session.nav.getCurrentService()
@@ -3629,30 +3647,30 @@ class InfoBarESIpanel:
 				p(session=self.session)
 				break
 
-class InfoBarExtrAddons:
+class InfoBarEsiMenu:
 	def __init__(self):
-		self["ExtrAddonsActions"] = HelpableActionMap(self, "InfoBarExtrAddons",
+		self["EsiMenuActions"] = HelpableActionMap(self, "InfoBarEsiMenu",
 				{
-					"extraddons": (self.bluekey_qm, _("Extr Addons...")),
+					"esimenu": (self.bluekey_qm, _("Esi Menu...")),
 				})
 
 	def bluekey_qm(self):
 		if config.workaround.blueswitch.value == "1":
 			self.showExtensionSelection()
 		else:
-			self.extraddonsStart()			
+			self.esimenuStart()
 
-	def extraddonsStart(self):
+	def esimenuStart(self):
 		try:
 			if not self.session.pipshown:
-				from Plugins.Extensions.Esipanel.ExtrAddons import ExtrAddons
-				self.session.open(ExtrAddons)
+				from Plugins.Extensions.Esipanel.EsiMenu import EsiMenu
+				self.session.open(EsiMenu)
 			else:
 				self.showExtensionSelection()
 		except:
-			print "[INFOBARGENERICS] ExtrAddons: error pipshow, starting Extr Addons"
-			from Plugins.Extensions.Esipanel.ExtrAddons import ExtrAddons
-			self.session.open(ExtrAddons)
+			print "[INFOBARGENERICS] EsiMenu: error pipshow, starting Esi Menu"
+			from Plugins.Extensions.Esipanel.EsiMenu import EsiMenu
+			self.session.open(EsiMenu)
 
 class InfoBarInstantRecord:
 	"""Instant Record - handles the instantRecord action in order to
@@ -4815,7 +4833,7 @@ class InfoBarSubtitleSupport(object):
 		else:
 			return 0
 
-	def subtitleExtrAddons(self):
+	def subtitleEsiMenu(self):
 		service = self.session.nav.getCurrentService()
 		subtitle = service and service.subtitle()
 		subtitlelist = subtitle and subtitle.getSubtitleList()
@@ -4944,7 +4962,7 @@ class InfoBarHdmi:
 		self.hdmi_enabled_full = False
 		self.hdmi_enabled_pip = False
 
-		if getMachineBuild() in ('inihdp', 'hd2400', 'dm7080', 'dm820', 'dm900', 'gb7252', 'vuultimo4k'):
+		if getMachineBuild() in ('inihdp', 'hd2400', 'dm7080', 'dm820', 'dm900', 'gb7252', 'vuultimo4k') or getBoxType() in ('spycat4k','spycat4kcombo'):
 			if not self.hdmi_enabled_full:
 				self.addExtension((self.getHDMIInFullScreen, self.HDMIInFull, lambda: True), "blue")
 			if not self.hdmi_enabled_pip:

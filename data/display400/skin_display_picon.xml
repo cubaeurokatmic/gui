@@ -231,7 +231,18 @@
 		</widget>
 	</screen>
 <!-- Schnellstartmenue -->
-	<screen name="ExtrAddons_summary" position="0,0" size="400,240">
+	<screen name="QuickMenu_summary" position="0,0" size="400,240">
+		<widget source="parent.Title" render="Label" position="0,0" size="400,85" font="FdLcD;38" foregroundColor="#87CEFA" halign="center" valign="center" />
+		<eLabel position="0,87" size="400,1" backgroundColor="white" />
+		<widget source="parent.summary_description" render="Label" position="0,88" size="400,152" zPosition="1" font="FdLcD;35" halign="center" valign="center" />
+	</screen>
+<!-- Metrix-Menu -->
+	<screen name="MainSettingsView_summary" position="0,0" size="400,240">
+		<widget source="parent.titleText" render="Label" position="0,0" size="400,178" font="FdLcD;35" foregroundColor="#87CEFA" halign="center" valign="center" />
+		<panel name="SummaryClockPanel" />
+	</screen>
+<!-- Esipanel -->
+	<screen name="Esipanel_summary" position="0,0" size="400,240">
 		<widget source="parent.Title" render="Label" position="0,0" size="400,85" font="FdLcD;38" foregroundColor="#87CEFA" halign="center" valign="center" />
 		<eLabel position="0,87" size="400,1" backgroundColor="white" />
 		<widget source="parent.summary_description" render="Label" position="0,88" size="400,152" zPosition="1" font="FdLcD;35" halign="center" valign="center" />

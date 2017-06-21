@@ -255,7 +255,7 @@ class AudioSelection(Screen, ConfigListScreen):
 				idx += 1
 
 			if self.infobar.selected_subtitle and self.infobar.selected_subtitle != (0,0,0,0)  and not ".DVDPlayer'>" in `self.infobar`:
-				conflist.append(getConfigListEntry(_("Subtitle Extraddons"), ConfigNothing(), None))
+				conflist.append(getConfigListEntry(_("Subtitle Quickmenu"), ConfigNothing(), None))
 
 		if len(conflist) > 0 and conflist[0][0]:
 			self["key_red"].setBoolean(True)

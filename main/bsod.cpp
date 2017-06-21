@@ -194,7 +194,7 @@ void bsodFatal(const char *component)
 
 		XmlGenerator xml(f);
 
-		xml.open("openESI");
+		xml.open("openesi");
 
 		xml.open("enigma2");
 		xml.string("crashdate", tm_str);
