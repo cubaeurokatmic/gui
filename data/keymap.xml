@@ -117,11 +117,11 @@
 		<key id="KEY_F4" mapto="showPluginBrowser" flags="l" />
 		<key id="KEY_F4" mapto="extensions" flags="b" />
 		<key id="KEY_BLUE" mapto="extensions" flags="l" />
-		<key id="KEY_BLUE" mapto="quickmenu" flags="b" />
+		<key id="KEY_BLUE" mapto="esimenu" flags="b" />
 	</map>
 
-	<map context="InfoBarQuickMenu">
-		<key id="KEY_BLUE" mapto="quickmenu" flags="b" />
+	<map context="InfoBarEsiMenu">
+		<key id="KEY_BLUE" mapto="esimenu" flags="b" />
  	</map>
 
 	<map context="SatlistShortcutAction">
@@ -130,8 +130,8 @@
 	</map>
 
 	<map context="InfobarChannelSelection">
-		<key id="KEY_LEFT" mapto="LeftPressed" flags="mr" />
-		<key id="KEY_RIGHT" mapto="RightPressed" flags="mr" />
+		<key id="KEY_LEFT" mapto="zapUp" flags="mr" />
+		<key id="KEY_RIGHT" mapto="zapDown" flags="mr" />
 		<key id="KEY_UP" mapto="switchChannelUp" flags="m" />
 		<key id="KEY_DOWN" mapto="switchChannelDown" flags="m" />
 		<!--key id="KEY_UP" mapto="switchChannelUpLong" flags="l" />
