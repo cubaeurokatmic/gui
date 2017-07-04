@@ -45,6 +45,15 @@
 	<menu weight="20" level="0" text="Setup" flushConfigOnClose="1" entryID="setup_selection" >
 		<id val="setup" />
 
+<!-- Menu / Settings / Service Searching -->
+		<menu weight="25" level="0" text="Service searching" entryID="service_searching_selection">
+			<id val="scan" />
+			<item weight="0" level="1" text="Basic settings" requires="USETunersetup" entryID="tuner_setup"><screen module="Satconfig" screen="TunerSetup" /></item>
+			<item weight="1" level="0" text="Tuner configuration" entryID="tuner_setup"><screen module="Satconfig" screen="NimSelection" /></item>
+			<item weight="5" level="0" text="Automatic scan" entryID="auto_scan"><screen module="ScanSetup" screen="ScanSimple" /></item>
+			<item weight="10" level="0" text="Manual scan" entryID="manual_scan"><screen module="ScanSetup" /></item>
+		</menu>
+
 		<!-- Menu / Settings / Video Menu -->
 		<menu weight="0" level="0" text="Video-Audio-Osd-Display-Language" entryID="video_menu">
 			<id val="video_menu" />
@@ -163,14 +172,6 @@ self.session.openWithCallback(msgClosed, EpgDeleteMsg)
 			<item weight="10" level="0" text="Recording settings" entryID="recording_setup"><screen module="Recordings" screen="RecordingSettings" /></item>
 			<item weight="15" level="0" text="Timeshift settings" entryID="timshift_setup"><screen module="Timershift" screen="TimeshiftSettings" /></item>
 </menu>
-<!-- Menu / Settings / Service Searching -->
-		<menu weight="25" level="0" text="Service searching" entryID="service_searching_selection">
-			<id val="scan" />
-			<item weight="0" level="1" text="Basic settings" requires="USETunersetup" entryID="tuner_setup"><screen module="Satconfig" screen="TunerSetup" /></item>
-			<item weight="1" level="0" text="Tuner configuration" entryID="tuner_setup"><screen module="Satconfig" screen="NimSelection" /></item>
-			<item weight="5" level="0" text="Automatic scan" entryID="auto_scan"><screen module="ScanSetup" screen="ScanSimple" /></item>
-			<item weight="10" level="0" text="Manual scan" entryID="manual_scan"><screen module="ScanSetup" /></item>
-		</menu>
 
 		<!-- Menu / Settings / Common interface -->
 		<menu weight="30" level="1" text="Common interface" entryID="cam_setup" requires="CommonInterface">
