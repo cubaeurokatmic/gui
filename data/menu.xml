@@ -55,10 +55,10 @@
 		</menu>
 
 		<!-- Menu / Settings / Video Menu -->
-		<menu weight="0" level="0" text="Video-Audio-Osd-Display-Language" entryID="video_menu">
+		<menu weight="0" level="0" text="Video-Audio-Osd-Display" entryID="video_menu">
 			<id val="video_menu" />
 			<item weight="0" level="0" text="Basic settings video" entryID="video_setup"><screen module="VideoMode" screen="VideoSetup" /></item>
-		
+                    		
 			<id val="audio_menu" />
 			<item weight="0" level="1" text="Basic settings audio" entryID="audio_setup"><screen module="VideoMode" screen="AudioSetup" /></item>
 			<!--item weight="20" level="0" entryID="specialfeatures_menu"><setup id="specialfeatures" /></item-->
@@ -69,18 +69,20 @@
 				<id val="osd_menu" />
                                 <item weight="0" level="0" entryID="display_setup"><setup id="display" /></item>
 				<item weight="5" level="0" text="Skin setup" entryID="lcd_skin_setup" requires="LCDSKINSetup"><screen module="SkinSelector" screen="LcdSkinSelector"/></item>
+                                <item weight="0" level="0" entryID="user_interface"><setup id="userinterface" /></item>
 	                        <item weight="10" level="1" text="OSD Position" entryID="osdsetup" requires="CanChangeOsdPosition"><screen module="UserInterfacePositioner" screen="UserInterfacePositioner2"/></item>
                                 <item weight="50" level="2" text="OSD 3D Setup" entryID="osd3dsetup" requires="CanChange3DOsd"><screen module="UserInterfacePositioner" screen="OSD3DSetupScreen"/></item>
-				<item weight="20" level="1" text="Input devices" entryID="input_device_setup"><screen module="InputDeviceSetup" screen="InputDeviceSelection" /></item>
+				
 
 				</menu>
-			<item weight="70" level="0" text="Language" entryID="language_setup"><screen module="LanguageSelection" /></item>
+			
 </menu>
 
 		<!-- Menu / Settings / System -->
 		<menu weight="0" level="0" text="System" entryID="system_selection">
 			<id val="system" />
                         <item weight="10" level="2" entryID="subtitle_setup"><setup id="subtitlesetup" /></item>
+                        <item weight="70" level="0" text="Language" entryID="language_setup"><screen module="LanguageSelection" /></item>
 			<item weight="15" level="1" entryID="autolanguage_setup"><setup id="autolanguagesetup" /></item>
 			<item weight="10" level="0" entryID="remote_setup"><setup id="remotesetup"/></item>
                         <item weight="12" text="Hotkey Setup" entryID="buttonsetup_setup"><screen module="ButtonSetup" screen="ButtonSetup"/></item>
@@ -93,17 +95,29 @@ from Plugins.SystemPlugins.RemoteControlCode.plugin import RemoteControlCode
 self.session.open(RemoteControlCode)
 </code>
 				</item>
+
 		</menu>
 
-		<!-- Menu / Settings / EPG -->
-		<menu weight="20" level="2" text="EPG-Device e HDD" entryID="epg_menu">
-			<id val="epg" />
-			<!-- Menu / Settings / System / Extended System / EPG / Load Save-->
-                        <item weight="0" level="1" entryID="harddisk_setup"><setup id="harddisk"/></item>
+		<!-- Menu / Settings / System -->
+		<!-- was: Menu / Settings / System / Extended System -->
+		<!-- <menu weight="95" level="0" text="Extended System" entryID="extended_selection"> -->
+		<menu weight="95" level="0" text="Funzioni Varie" entryID="extended_selection">
+			<id val="extended" />
+                              <item weight="20" level="1" text="Input devices" entryID="input_device_setup"><screen module="InputDeviceSetup" screen="InputDeviceSelection" /></item>
+			<!-- Menu / Settings / System / Storage devices -->
+			<menu weight="45" level="0" text="Storage devices" entryID="hardisk_selection" requires="Harddisk">
+				<id val="harddisk" />
+				<item weight="0" level="1" entryID="harddisk_setup"><setup id="harddisk"/></item>
 				<item weight="5" level="0" text="Initialization" entryID="harddisk_init"><screen module="HarddiskSetup" screen="HarddiskSelection"/></item>
 				<item weight="10" level="0" text="Filesystem Check" entryID="harddisk_check"><screen module="HarddiskSetup" screen="HarddiskFsckSelection"/></item>
 				<item weight="15" level="0" text="Convert ext3 filesystem to ext4" entryID="harddisk_convert" requires="ext4"><screen module="HarddiskSetup" screen="HarddiskConvertExt4Selection"/></item>
-			<item weight="110" level="2" entryID="setup_epgmulti"><setup id="epgmulti" /></item>
+			</menu>
+
+		<!-- Menu / Settings / EPG -->
+		<menu weight="20" level="2" text="EPG" entryID="epg_menu">
+			<id val="epg" />
+			<!-- Menu / Settings / System / Extended System / EPG / Load Save-->
+                       	<item weight="110" level="2" entryID="setup_epgmulti"><setup id="epgmulti" /></item>
 			<item weight="115" level="2" entryID="setup_epgenhanced"><setup id="epgenhanced" /></item>
 			<item weight="120" level="2" entryID="setup_epginfobar"><setup id="epginfobar" /></item>
 			<item weight="125" level="2" entryID="setup_epginfobargraphical"><setup id="epginfobargraphical" /></item>
@@ -149,22 +163,7 @@ self.session.openWithCallback(msgClosed, EpgDeleteMsg)
 				</item>
 			</menu>
 			<item weight="300" level="0" entryID="epg_setup"><setup id="epgsettings" /></item>
-		</menu>
-
-		
-		<!-- Menu / Settings / System -->
-		<!-- was: Menu / Settings / System / Extended System -->
-		<!-- <menu weight="95" level="0" text="Extended System" entryID="extended_selection"> -->
-		<menu weight="95" level="0" text="Funzioni Varie" entryID="extended_selection">
-			<id val="extended" />
-			<!-- Menu / Settings / System / Storage devices -->
-			<menu weight="45" level="0" text="Storage devices" entryID="hardisk_selection" requires="Harddisk">
-				<id val="harddisk" />
-				<item weight="0" level="1" entryID="harddisk_setup"><setup id="harddisk"/></item>
-				<item weight="5" level="0" text="Initialization" entryID="harddisk_init"><screen module="HarddiskSetup" screen="HarddiskSelection"/></item>
-				<item weight="10" level="0" text="Filesystem Check" entryID="harddisk_check"><screen module="HarddiskSetup" screen="HarddiskFsckSelection"/></item>
-				<item weight="15" level="0" text="Convert ext3 filesystem to ext4" entryID="harddisk_convert" requires="ext4"><screen module="HarddiskSetup" screen="HarddiskConvertExt4Selection"/></item>
-			</menu>
+            </menu>
 	
                 <!-- Menu / Settings / Recordings -->
 		<menu weight="10" level="1" text="Recordings &amp; Timeshift" entryID="rec_setup">
