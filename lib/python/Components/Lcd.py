@@ -300,7 +300,7 @@ def standbyCounterChanged(configElement):
 	config.lcd.ledbrightnessdeepstandby.apply()
 
 def InitLcd():
-	if getBoxType() in ('valalinux','tmtwin4k','tmnanom3','mbmicrov2','revo4k','force3uhd','force2nano','evoslim','wetekplay', 'wetekplay2', 'wetekhub', 'ultrabox', 'novaip', 'dm520', 'dm525', 'purehd', 'mutant11', 'xpeedlxpro', 'zgemmai55', 'sf98', 'et7x00mini', 'xpeedlxcs2', 'xpeedlxcc', 'e4hd', 'e4hdhybrid', 'mbmicro', 'beyonwizt2', 'amikomini', 'dynaspark', 'amiko8900', 'sognorevolution', 'arguspingulux', 'arguspinguluxmini', 'arguspinguluxplus', 'sparkreloaded', 'sabsolo', 'sparklx', 'gis8120', 'gb800se', 'gb800solo', 'gb800seplus', 'gbultrase', 'gbipbox', 'tmsingle', 'tmnano2super', 'iqonios300hd', 'iqonios300hdv2', 'optimussos1plus', 'optimussos1', 'vusolo', 'et4x00', 'et5x00', 'et6x00', 'et7000', 'et7100', 'mixosf7', 'mixoslumi', 'gbx1', 'gbx2', 'gbx3', 'gbx3h'):
+	if getBoxType() in ('vipert2c','evoslimse','evoslimt2c','valalinux','tmtwin4k','tmnanom3','mbmicrov2','revo4k','force3uhd','force2nano','evoslim','wetekplay', 'wetekplay2', 'wetekhub', 'ultrabox', 'novaip', 'dm520', 'dm525', 'purehd', 'mutant11', 'xpeedlxpro', 'zgemmai55', 'sf98', 'et7x00mini', 'xpeedlxcs2', 'xpeedlxcc', 'e4hd', 'e4hdhybrid', 'mbmicro', 'beyonwizt2', 'amikomini', 'dynaspark', 'amiko8900', 'sognorevolution', 'arguspingulux', 'arguspinguluxmini', 'arguspinguluxplus', 'sparkreloaded', 'sabsolo', 'sparklx', 'gis8120', 'gb800se', 'gb800solo', 'gb800seplus', 'gbultrase', 'gbipbox', 'tmsingle', 'tmnano2super', 'iqonios300hd', 'iqonios300hdv2', 'optimussos1plus', 'optimussos1', 'vusolo', 'et4x00', 'et5x00', 'et6x00', 'et7000', 'et7100', 'mixosf7', 'mixoslumi', 'gbx1', 'gbx2', 'gbx3', 'gbx3h'):
 		detected = False
 	else:
 		detected = eDBoxLCD.getInstance().detected()
@@ -464,7 +464,7 @@ def InitLcd():
 			config.lcd.contrast.addNotifier(setLCDcontrast);
 		else:
 			config.lcd.contrast = ConfigNothing()
-			if getBoxType() in ('dm900'):
+			if getBoxType() in ('dm900', 'dm920'):
 				standby_default = 4
 			elif getBoxType() in ('spycat4kmini', 'osmega'):
 				standby_default = 10
@@ -535,7 +535,7 @@ def InitLcd():
 		if SystemInfo["VFD_scroll_delay"] and getBoxType() not in ('ixussone', 'ixusszero'):
 			def scroll_delay(el):
 				# add workaround for Boxes who need hex code
-				if getBoxType() == 'sf4008':
+				if getBoxType() in ('sf4008', 'beyonwizu4'):
 					open(SystemInfo["VFD_scroll_delay"], "w").write(hex(int(el.value)))
 				else:
 					open(SystemInfo["VFD_scroll_delay"], "w").write(str(el.value))
@@ -547,7 +547,7 @@ def InitLcd():
 
 		if SystemInfo["VFD_initial_scroll_delay"] and getBoxType() not in ('ixussone', 'ixusszero'):
 			def initial_scroll_delay(el):
-				if getBoxType() == 'sf4008':
+				if getBoxType() in ('sf4008', 'beyonwizu4'):
 					# add workaround for Boxes who need hex code
 					open(SystemInfo["VFD_initial_scroll_delay"], "w").write(hex(int(el.value)))
 				else:
@@ -565,7 +565,7 @@ def InitLcd():
 
 		if SystemInfo["VFD_final_scroll_delay"] and getBoxType() not in ('ixussone', 'ixusszero'):
 			def final_scroll_delay(el):
-				if getBoxType() == 'sf4008':
+				if getBoxType() in ('sf4008', 'beyonwizu4'):
 					# add workaround for Boxes who need hex code
 					open(SystemInfo["VFD_final_scroll_delay"], "w").write(hex(int(el.value)))
 				else:
